@@ -1,0 +1,165 @@
+//VAR Formatter
+
+//COMPONENTS
+class Expenses extends React.Component {
+  constructor(props) {
+    super(props);
+  };
+  render() {
+    return(
+      <div className="expense-item">
+        <span className="item">{this.props.item} - </span>
+        <span className="cost">{this.props.cost}</span>
+        <strong className='close' onClick={this.props.onClickClose}> &times; </strong>
+      </div>
+    );
+  };
+};
+
+class Month extends React.Component {
+  constructor(props) {
+    super(props);
+  };
+  render() {
+    return(
+      <div className="month-track">
+        <h2 className="month">{this.props.month}</h2>
+      </div>
+    )
+  }
+}
+
+class ExpenseTracker extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      expenses: [ ],
+      total: '0.00'
+    };
+    this.addExpense = this.addExpense.bind(this);
+    this.deleteExpense = this.deleteExpense.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+  
+  addExpense(e) {
+    e.preventDefault()
+    var expenses = this.state.expenses;
+    var total = this.state.total;
+    
+    expenses.push({
+      month: this.state.monthValue,
+      item: this.state.itemValue,
+      cost: this.state.costValue
+    });
+    
+    total = (Number(total) + Number(this.state.costValue)).toFixed(2);
+    
+    this.setState({
+      expenses: expenses,
+      monthValue: '',
+      itemValue: '',
+      costValue: '',
+      total: total
+    })
+    console.log(this.state)
+  }
+  
+  handleChange(e) {
+    e.preventDefault()
+    this.setState({
+      [e.target.name]: e.target.value
+    });
+  }
+  handleSubmit(e) {
+    e.preventDefault()
+  }
+  
+  deleteExpense(index) {
+    let deleted = this.state.expenses.splice(index, 1);
+    var total = this.state.total;
+    
+    total = (Number(total) - Number(deleted[0].cost)).toFixed(2);
+    
+    this.setState({
+      expenses:  this.state.expenses,
+      total: total
+    });
+  }
+  
+  render() {
+    var expenses = this.state.expenses.map((expense, index) => {
+      return(
+        <Expenses 
+          key={index}
+          item={expense.item}
+          month={expense.month}
+          cost={expense.cost}
+          onClickClose={this.deleteExpense.bind(this, index)}
+         />);
+    })
+    
+    return(
+      <div className="container">
+        <h1 className="header">Your Monthly Expenses</h1>
+        {expenses}
+        <p className="total">Expense Total: ${this.state.total}</p>
+        <form 
+          className="expense-form"
+          role="form"
+          onSubmit={this.addExpense}>
+          <div className="input">
+            <label for="month-input">Select a month for your expense</label>
+            <div className="select"> 
+              <select
+                 name="monthValue"
+                 value={this.state.monthValue}
+                 className="month-input"
+                 onChange={this.handleChange}
+                 onSubmit={this.handleSubmit}
+                 required>
+                <option value="">Select a month</option>
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June">June</option>
+                <option value="July">July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+              </select>
+            </div>
+            <label for="item-input">What was the expense?</label>
+            <div className="item-div">
+              <input
+                name="itemValue"
+                className="item-input"
+                type="text"
+                value={this.state.itemValue}
+                onChange={this.handleChange}
+                required
+                />
+            </div>
+            <label for="cost-input">What was the cost?</label>
+            <div className="cost-div">
+              <input
+                name="costValue"
+                className="cost-input"
+                type="number"
+                value={this.state.costValue}
+                onChange={this.handleChange}
+                required
+                />
+            </div>
+          </div>
+          <button className="button" type="submit">Submit Expense</button>          
+        </form>
+      </div>
+    );
+  };
+};
+ReactDOM.render(<ExpenseTracker />, document.getElementById('main'));
